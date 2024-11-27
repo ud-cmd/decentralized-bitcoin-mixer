@@ -106,3 +106,28 @@
                 (+ current-total amount))
             
             (ok true))))
+
+;; Create Mixer Pool
+(define-public (create-mixer-pool (pool-id uint) (initial-amount uint))
+    (begin
+        ;; Validate contract state and amount
+        (asserts! (var-get is-initialized) ERR-CONTRACT-NOT-INITIALIZED)
+        (asserts! (not (var-get contract-paused)) ERR-NOT-AUTHORIZED)
+        (asserts! (>= initial-amount MIN-POOL-AMOUNT) ERR-INVALID-AMOUNT)
+        
+        ;; Check user balance
+        (let ((user-balance (default-to u0 (map-get? user-balances tx-sender))))
+            (asserts! (>= user-balance initial-amount) ERR-INSUFFICIENT-BALANCE)
+            
+            ;; Create pool and deduct initial amount
+            (map-set mixer-pools pool-id {
+                total-amount: initial-amount,
+                participant-count: u1,
+                is-active: true
+            })
+            
+            (map-set user-balances 
+                tx-sender 
+                (- user-balance initial-amount))
+            
+            (ok true))))
