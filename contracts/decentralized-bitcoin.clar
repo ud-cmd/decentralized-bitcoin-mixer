@@ -168,3 +168,19 @@
         (asserts! (is-contract-owner tx-sender) ERR-NOT-AUTHORIZED)
         (var-set contract-paused (not (var-get contract-paused)))
         (ok (var-get contract-paused))))
+
+;; Read-Only Functions
+(define-read-only (get-balance (user principal))
+    (default-to u0 (map-get? user-balances user)))
+
+(define-read-only (get-daily-limit-remaining (user principal))
+    (let ((current-day (/ block-height u144))
+          (current-total (default-to u0 
+            (map-get? daily-transaction-totals {user: user, day: current-day}))))
+        (- MAX-DAILY-LIMIT current-total)))
+
+(define-read-only (get-contract-status)
+    {
+        is-paused: (var-get contract-paused),
+        is-initialized: (var-get is-initialized)
+    })
