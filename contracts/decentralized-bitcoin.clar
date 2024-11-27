@@ -14,3 +14,9 @@
 (define-constant ERR-DAILY-LIMIT-EXCEEDED (err u1006))
 (define-constant ERR-INVALID-POOL (err u1007))
 (define-constant ERR-DUPLICATE-PARTICIPANT (err u1008))
+
+;; Contract Configuration Constants
+(define-constant MAX-DAILY-LIMIT u10000000000) ;; 100 BTC in satoshis
+(define-constant MAX-POOL-PARTICIPANTS u10)
+(define-constant MAX-TRANSACTION-AMOUNT u1000000000000) ;; 10,000 BTC in satoshis
+(define-constant MIN-POOL-AMOUNT u100000) ;; Minimum pool contribution
