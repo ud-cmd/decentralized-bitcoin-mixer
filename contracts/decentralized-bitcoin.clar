@@ -115,6 +115,10 @@
         (asserts! (not (var-get contract-paused)) ERR-NOT-AUTHORIZED)
         (asserts! (>= initial-amount MIN-POOL-AMOUNT) ERR-INVALID-AMOUNT)
         
+        ;; Add pool ID validation
+        (asserts! (< pool-id u1000) ERR-INVALID-POOL) ;; Limit pool IDs to a reasonable range
+        (asserts! (is-none (map-get? mixer-pools pool-id)) ERR-INVALID-POOL) ;; Ensure pool doesn't already exist
+        
         ;; Check user balance
         (let ((user-balance (default-to u0 (map-get? user-balances tx-sender))))
             (asserts! (>= user-balance initial-amount) ERR-INSUFFICIENT-BALANCE)
