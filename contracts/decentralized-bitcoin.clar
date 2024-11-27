@@ -20,3 +20,8 @@
 (define-constant MAX-POOL-PARTICIPANTS u10)
 (define-constant MAX-TRANSACTION-AMOUNT u1000000000000) ;; 10,000 BTC in satoshis
 (define-constant MIN-POOL-AMOUNT u100000) ;; Minimum pool contribution
+
+;; State Variables
+(define-data-var is-initialized bool false)
+(define-data-var contract-paused bool false)
+(define-data-var mixing-fee uint u100) ;; 1% fee in basis points
