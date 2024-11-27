@@ -161,3 +161,10 @@
                 (- user-balance amount))
             
             (ok true))))
+
+;; Emergency Pause Functionality
+(define-public (toggle-contract-pause)
+    (begin
+        (asserts! (is-contract-owner tx-sender) ERR-NOT-AUTHORIZED)
+        (var-set contract-paused (not (var-get contract-paused)))
+        (ok (var-get contract-paused))))
