@@ -78,3 +78,31 @@
                 (+ current-total amount))
             
             (ok true))))
+
+;; Withdrawal Function
+(define-public (withdraw (amount uint))
+    (begin
+        ;; Validate contract state and amount
+        (asserts! (var-get is-initialized) ERR-CONTRACT-NOT-INITIALIZED)
+        (asserts! (not (var-get contract-paused)) ERR-NOT-AUTHORIZED)
+        (asserts! (and (> amount u0) (<= amount MAX-TRANSACTION-AMOUNT)) ERR-INVALID-AMOUNT)
+        
+        ;; Check balance and daily limit
+        (let ((current-balance (default-to u0 (map-get? user-balances tx-sender)))
+              (current-day (/ block-height u144))
+              (current-total (default-to u0 
+                (map-get? daily-transaction-totals {user: tx-sender, day: current-day}))))
+            
+            (asserts! (>= current-balance amount) ERR-INSUFFICIENT-BALANCE)
+            (asserts! (<= (+ current-total amount) MAX-DAILY-LIMIT) ERR-DAILY-LIMIT-EXCEEDED)
+            
+            ;; Update balance and daily total
+            (map-set user-balances 
+                tx-sender 
+                (- current-balance amount))
+            
+            (map-set daily-transaction-totals 
+                {user: tx-sender, day: current-day}
+                (+ current-total amount))
+            
+            (ok true))))
