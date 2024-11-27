@@ -131,3 +131,33 @@
                 (- user-balance initial-amount))
             
             (ok true))))
+
+;; Join Mixer Pool
+(define-public (join-mixer-pool (pool-id uint) (amount uint))
+    (begin
+        ;; Validate contract state and amount
+        (asserts! (var-get is-initialized) ERR-CONTRACT-NOT-INITIALIZED)
+        (asserts! (not (var-get contract-paused)) ERR-NOT-AUTHORIZED)
+        (asserts! (>= amount MIN-POOL-AMOUNT) ERR-INVALID-AMOUNT)
+        
+        ;; Check pool and user balance
+        (let ((pool (unwrap! (map-get? mixer-pools pool-id) ERR-INVALID-POOL))
+              (user-balance (default-to u0 (map-get? user-balances tx-sender))))
+            
+            ;; Check pool constraints
+            (asserts! (get is-active pool) ERR-INVALID-POOL)
+            (asserts! (< (get participant-count pool) MAX-POOL-PARTICIPANTS) ERR-POOL-FULL)
+            (asserts! (>= user-balance amount) ERR-INSUFFICIENT-BALANCE)
+            
+            ;; Update pool and user balance
+            (map-set mixer-pools pool-id {
+                total-amount: (+ (get total-amount pool) amount),
+                participant-count: (+ (get participant-count pool) u1),
+                is-active: true
+            })
+            
+            (map-set user-balances 
+                tx-sender 
+                (- user-balance amount))
+            
+            (ok true))))
