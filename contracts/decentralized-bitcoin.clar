@@ -53,3 +53,28 @@
         (asserts! (not (var-get is-initialized)) ERR-ALREADY-INITIALIZED)
         (var-set is-initialized true)
         (ok true)))
+
+;; Deposit Function
+(define-public (deposit (amount uint))
+    (begin
+        ;; Validate contract state and amount
+        (asserts! (var-get is-initialized) ERR-CONTRACT-NOT-INITIALIZED)
+        (asserts! (not (var-get contract-paused)) ERR-NOT-AUTHORIZED)
+        (asserts! (and (> amount u0) (<= amount MAX-TRANSACTION-AMOUNT)) ERR-INVALID-AMOUNT)
+        
+        ;; Check daily limit
+        (let ((current-day (/ block-height u144))
+              (current-total (default-to u0 
+                (map-get? daily-transaction-totals {user: tx-sender, day: current-day}))))
+            (asserts! (<= (+ current-total amount) MAX-DAILY-LIMIT) ERR-DAILY-LIMIT-EXCEEDED)
+            
+            ;; Update balance and daily total
+            (map-set user-balances 
+                tx-sender 
+                (+ (default-to u0 (map-get? user-balances tx-sender)) amount))
+            
+            (map-set daily-transaction-totals 
+                {user: tx-sender, day: current-day}
+                (+ current-total amount))
+            
+            (ok true))))
