@@ -42,3 +42,14 @@
         participant-count: uint,
         is-active: bool
     })
+
+;; Authorization Check
+(define-private (is-contract-owner (sender principal))
+    (is-eq sender CONTRACT-OWNER))
+
+;; Initialization Function
+(define-public (initialize)
+    (begin
+        (asserts! (not (var-get is-initialized)) ERR-ALREADY-INITIALIZED)
+        (var-set is-initialized true)
+        (ok true)))
