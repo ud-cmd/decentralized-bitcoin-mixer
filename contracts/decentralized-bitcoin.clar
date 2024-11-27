@@ -25,3 +25,20 @@
 (define-data-var is-initialized bool false)
 (define-data-var contract-paused bool false)
 (define-data-var mixing-fee uint u100) ;; 1% fee in basis points
+
+;; Data Maps
+(define-map user-balances 
+    principal 
+    uint)
+
+(define-map daily-transaction-totals 
+    {user: principal, day: uint}
+    uint)
+
+(define-map mixer-pools 
+    uint 
+    {
+        total-amount: uint,
+        participant-count: uint,
+        is-active: bool
+    })
